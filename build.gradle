@@ -5,8 +5,11 @@ plugins {
 }
 
 group = 'ru.test'
-version = '0.0.1-SNAPSHOT'
-description = 'load-test'
+version = '1'
+
+bootJar {
+    archiveFileName = 'tomcat-load-test.jar'
+}
 
 java {
     toolchain {

@@ -4,10 +4,20 @@ import org.springframework.stereotype.Service;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 @Service
 public class LoadTestService {
-    private final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+
+    private static final int availableProcessors = Runtime.getRuntime().availableProcessors();
+
+    private static final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+
+    private static final ExecutorService virtualPool = Executors.newVirtualThreadPerTaskExecutor();
+
+    private static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(availableProcessors + 1);
 
     public LoadTestService() {
         threadMXBean.setThreadCpuTimeEnabled(true);
@@ -25,6 +35,27 @@ public class LoadTestService {
 
         long usedCpuNanos = threadMXBean.getCurrentThreadCpuTime() - startCpuNanos;
         return usedCpuNanos / 1_000_000;
+    }
+
+    public List<Long> asyncBurnCPU(long targetMillis) {
+        var results = new ArrayList<CompletableFuture<Long>>();
+
+        for (var i = 0; i < availableProcessors; i++) {
+            results.add(
+                    CompletableFuture.supplyAsync(() -> burnCPU(targetMillis), fixedThreadPool)
+            );
+        }
+
+        CompletableFuture.allOf(
+                results.toArray(new CompletableFuture[0])
+        ).join();
+
+        return results.stream().map(CompletableFuture::join).toList();
+    }
+
+    public long virtualBurnCPU(long targetMillis)  {
+        var result = CompletableFuture.supplyAsync(() -> burnCPU(targetMillis), virtualPool);
+        return result.join();
     }
 
     private long wasteSomeCpu(long seed) {

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+<html><body>
+<div id="myplot"></div>
+<script type=module>
+
+    var mydata = [
+        {Test: "Test", R:10000, rps:9974.56, l:8.05 },
+        {Test: "Test", R:30000, rps:29981.68, l:698.37 },
+        {Test: "Test", R:50000, rps:49867.96, l:8.51 },
+        {Test: "Test", R:70000, rps:69812.92, l:79.68 },
+        {Test: "Test", R:90000, rps:82983.62, l:4830 },
+        {Test: "Test", R:110000, rps:79445.76, l:16610 },
+        {Test: "Test", R:130000, rps:84924.89, l:20660 },
+        {Test: "Test", R:150000, rps:83689.40, l:26280 },
+        {Test: "Test", R:170000, rps:85571.23, l:29540 },
+        {Test: "Test", R:190000, rps:81449.21, l:33750 },
+    ]
+
+    const plot = Plot.plot({
+        marginTop:    30, marginRight:  30, marginBottom: 40, marginLeft:   40,
+
+        color: {legend: true, domain: ["Test"], range: ["orange", "darkblue", "darkgreen", "aquamarine"]},
+        grid: true, x: {label: "RPS (requests per second)"}, y: {label: "Latency"}, inset: 10,
+
+        marks: [
+            Plot.ruleY([0]),
+            Plot.lineY(mydata, {x: "rps", y: "l", stroke: "Test"}),
+            Plot.dot(mydata, {x: "rps", y: "l", r: 2, fill: "#000", stroke: "Test"}),
+        ]
+    })
+
+    const div = document.querySelector("#myplot");
+    div.append(plot);
+</script>
+</body>
+</html>
