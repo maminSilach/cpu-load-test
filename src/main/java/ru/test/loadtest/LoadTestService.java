@@ -9,6 +9,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
 
 @Service
@@ -23,6 +24,10 @@ public class LoadTestService {
     private static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(availableProcessors + 1);
 
     private static final byte[] IO_BOUND = new byte[1024 * 1024];
+
+    static {
+        new Random().nextBytes(IO_BOUND);
+    }
 
     public LoadTestService() {
         threadMXBean.setThreadCpuTimeEnabled(true);
